@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config'
-import job from './crons/cron.js';
+// import job from './crons/cron.js';
 
 // Routes Imports
 import { connectDB } from './config/db.js';
