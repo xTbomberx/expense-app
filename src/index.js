@@ -5,6 +5,7 @@ import 'dotenv/config'
 
 // Routes Imports
 import { connectDB } from './config/db.js';
+import authRoutes from './routes/auth.route.js'
 // import authRoutes from './routes/auth.routes.js'
 // import bookRoutes from './/routes/book.routes.js'
 
@@ -26,7 +27,7 @@ app.get('/here', (req,res) => {
     res.send("I am here")
 })
 
-// app.use('/api/auth', authRoutes)
+app.use('/api/auth', authRoutes)
 // app.use('/api/books', bookRoutes);
 
 
