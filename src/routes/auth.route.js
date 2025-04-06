@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User.js'
 import jwt from 'jsonwebtoken'
 
+import protectRoute from '../middleware/protectRoute.js';
 
 const router = express.Router();
 
@@ -79,7 +80,7 @@ router.post('/register', async(req, res) => {
 
 // Login
 
-router.post('/login', async(req,res) => {
+router.post('/login', protectRoute, async(req,res) => {
     
 	try{
 	    const {email, password} = req.body;
