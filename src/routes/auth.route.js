@@ -148,7 +148,7 @@ router.put('/update' , async(req,res) => {
 				createdAt: user.createdAt,
 			 },
 		})
-	} catch(error) {
+	} catch(e) {
 		console.log('Update Error: ', e)
 		res.status(500).json({message: 'Update-Interal Srvr Error'})
 	}
