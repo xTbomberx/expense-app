@@ -1,0 +1,66 @@
+1. GENERATE a self-sgined SSL ssl_certificate
+(generate selfsigned ssl-cert)
+
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/nginx-selfsigned.key \ 
+  -out /etc/ssl/certs/nginx-selfsigned.crt
+
+= .key = The private key
+= .crt = The self-signed cert
+
+2. Create Diffie-Hellman Parameters
+(generate strong DH group)
+
+sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+
+3. Configure nginx
+
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # SSL Configuration
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+    ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    # Logging
+    access_log /var/log/nginx/your-site-access.log;
+    error_log /var/log/nginx/your-site-error.log;
+
+    # Root directory and index file
+    root /var/www/your-site;
+    index index.html index.htm;
+
+    # Location block
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+
+4. ENABLE the Configuration
+sudo ln -s /etc/nginx/sites-available/mern-app /etc/nginx/sites-enabled/
+
+
+5. TEST/RELOAD
+sudo nginx -t
+sudo systemctl reload nginx

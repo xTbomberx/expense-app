@@ -113,4 +113,46 @@ router.post('/login', async(req,res) => {
 	}
  })
 
+router.put('/update' , async(req,res) => {
+
+	try {
+		// FROM MOBILE FRONTEND
+		const { username, profileImage } = req.body;
+
+		// Authenticated User
+		const user = req.user;
+
+		// 1. Update Username (if provided)
+		if(username) {
+			if (username.length < 3){
+				return res.status(400).json({message: "Username must be at least 3 characters"})
+			}
+			user.username = username
+		}
+
+		// 1. Update Username (if provided)
+		if(profileImage){
+			user.profileImage = profileImage;
+		}
+
+		// Save Updated User
+		await user.save()
+
+		res.status(200).json({
+			message: "User Updated successfully",
+			user: {
+				id: user._id,
+				username: user.username,
+				email: user.email,
+				profileImage: user.profileImage,
+				createdAt: user.createdAt,
+			 },
+		})
+	} catch(error) {
+		console.log('Update Error: ', e)
+		res.status(500).json({message: 'Update-Interal Srvr Error'})
+	}
+
+})
+
 export default router
