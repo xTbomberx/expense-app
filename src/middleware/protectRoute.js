@@ -15,6 +15,7 @@ const protectRoute = async(req,res,next) => {
     try {
         // get token
         const token = req.header('Authorization').replace('Bearer ', '')
+        console.log('Token from Header:', token); // Debugging
         if(!token) return res.status(401).json({message: 'No auth token, access denied chump'})
 
         // verify token
