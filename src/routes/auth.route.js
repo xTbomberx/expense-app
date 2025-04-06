@@ -80,7 +80,7 @@ router.post('/register', async(req, res) => {
 
 // Login
 
-router.post('/login', protectRoute, async(req,res) => {
+router.post('/login', async(req,res) => {
     
 	try{
 	    const {email, password} = req.body;
@@ -114,7 +114,7 @@ router.post('/login', protectRoute, async(req,res) => {
 	}
  })
 
-router.put('/update' , async(req,res) => {
+router.put('/update' , protectRoute, async(req,res) => {
 
 	try {
 		// FROM MOBILE FRONTEND
