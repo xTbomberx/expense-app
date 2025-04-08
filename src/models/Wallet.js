@@ -17,10 +17,10 @@ const walletSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    // icon: {
-    //     type: String, // icon name
-    //     default: null,
-    // },
+    image: {
+        type: String, // icon name
+        default: null,
+    },
     uid: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // Reference the User model

@@ -9,26 +9,26 @@ const router = express.Router();
 router.post('/postWallet', protectRoute, async (req, res) => {
     try {
         console.log('Request received at /postWallet'); // Log when the route is hit
-        const { name } = req.body;
+        const { name, image } = req.body;
 
 
         const userId = req.user.id; // Extract the logged-in user's ID from the token
         console.log('User ID:', userId); // Log the user ID
 
         // 2. Update profileImage (if provided)
-        // if(profileImage){
-        //     const uploadResponse = await cloudinary.uploader.upload(profileImage);
-        //     const imageUrl = uploadResponse.secure_url;
+        if(profileImage){
+            const uploadResponse = await cloudinary.uploader.upload(profileImage);
+            const imageUrl = uploadResponse.secure_url;
         
-        //     if (imageUrl) {
-        //         user.profileImage = imageUrl;
-        //     }
-        // }
+            if (imageUrl) {
+                user.profileImage = imageUrl;
+            }
+        }
 
         console.log('Creating wallet in the database...');
         const wallet = await Wallet.create({
             name,
-            // icon: imageUrl,
+            image: imageUrl,
             uid: userId,
         });
 
