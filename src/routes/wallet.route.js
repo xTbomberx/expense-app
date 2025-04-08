@@ -16,6 +16,8 @@ router.post('/postWallet', protectRoute, async (req, res) => {
         console.log('User ID:', userId); // Log the user ID
 
         // 2. Update 
+        let imageUrl = null
+
         if(image){
             const uploadResponse = await cloudinary.uploader.upload(image);
             const imageUrl = uploadResponse.secure_url;
