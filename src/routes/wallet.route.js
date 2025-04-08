@@ -15,14 +15,12 @@ router.post('/postWallet', protectRoute, async (req, res) => {
         const userId = req.user.id; // Extract the logged-in user's ID from the token
         console.log('User ID:', userId); // Log the user ID
 
-        // 2. Update profileImage (if provided)
+        // 2. Update 
         if(image){
             const uploadResponse = await cloudinary.uploader.upload(image);
             const imageUrl = uploadResponse.secure_url;
-        
-            if (imageUrl) {
-                user.profileImage = imageUrl;
-            }
+            console.log('Image uploaded successfully:', imageUrl);
+
         }
 
         console.log('Creating wallet in the database...');
