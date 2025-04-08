@@ -8,7 +8,8 @@ const router = express.Router();
 router.post('/postWallet', protectRoute, async (req, res) => {
     try {
         const { name, image } = req.body;
-
+        console.log(req.body)
+        
 	   // 1. Grab Logged In User
         const userId = req.user.id; // Extract the logged-in user's ID from the token
 
