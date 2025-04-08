@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js'
 import jwt from 'jsonwebtoken'
-
+import cloudinary from '../config/cloudinary.js'
 import protectRoute from '../middleware/protectRoute.js';
 
 const router = express.Router();
@@ -85,7 +85,7 @@ router.post('/login', async(req,res) => {
 	try{
 	    const {email, password} = req.body;
  
-	    if(!email || !password) return res.status(400).json({message: "Need ALL login fields"})
+	    if(!email || !password) return res.status(400).json({message: "Need all login fields"})
  
 	    // Check if User exists
 	    const user = await User.findOne({email})
@@ -110,10 +110,12 @@ router.post('/login', async(req,res) => {
 	    })
 	} catch(e){
 	    console.log('Login Error: ', e)
-	    res.status(500).json({message: 'Interal Srvr Error'})
+	    res.status(500).json({message: 'Interal Server Error'})
 	}
  })
 
+
+// UPDATE
 router.put('/update' , protectRoute, async(req,res) => {
 
 	try {
@@ -131,12 +133,18 @@ router.put('/update' , protectRoute, async(req,res) => {
 			user.username = username
 		}
 
-		// 1. Update Username (if provided)
-		if(profileImage){
-			user.profileImage = profileImage;
-		}
 
-		// Save Updated User
+		// 2. Update profileImage (if provided)
+		if(profileImage){
+			const uploadResponse = await cloudinary.uploader.upload(profileImage);
+			const imageUrl = uploadResponse.secure_url;
+	  
+			if (imageUrl) {
+			    user.profileImage = imageUrl;
+			}
+		}
+		
+		// Save Updated  User
 		await user.save()
 
 		res.status(200).json({
@@ -151,7 +159,7 @@ router.put('/update' , protectRoute, async(req,res) => {
 		})
 	} catch(e) {
 		console.log('Update Error: ', e)
-		res.status(500).json({message: 'Update-Interal Srvr Error'})
+		res.status(500).json({message: 'Interal Server Error'})
 	}
 
 })
