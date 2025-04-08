@@ -1,44 +1,47 @@
 import express from 'express';
 import Wallet from '../models/Wallet.js';
 import protectRoute from '../middleware/protectRoute.js';
+import cloudinary from '../config/cloudinary.js';
 
 const router = express.Router();
 
 // Create a new wallet
 router.post('/postWallet', protectRoute, async (req, res) => {
     try {
+        console.log('Request received at /postWallet'); // Log when the route is hit
         const { name, image } = req.body;
-        console.log(req.body)
-        
-	   // 1. Grab Logged In User
-        const userId = req.user.id; // Extract the logged-in user's ID from the token
 
-       // 2. Upload Base64 Image to CLoudinary
-       let imageUrl = null;
-       
-       if(image) {
+
+        const userId = req.user.id; // Extract the logged-in user's ID from the token
+        console.log('User ID:', userId); // Log the user ID
+
+        let imageUrl = null;
+
+        if (image) {
             const uploadResponse = await cloudinary.uploader.upload(image);
             imageUrl = uploadResponse.secure_url;
-       }
+        }
 
-
+        console.log('Creating wallet in the database...');
         const wallet = await Wallet.create({
             name,
             image: imageUrl,
-            uid: userId, // Associate the wallet with the logged-in user
+            uid: userId,
         });
+
+        console.log('Wallet created:', wallet); // Log the created wallet
 
         res.status(201).json({ success: true, wallet });
     } catch (error) {
-        console.error(error);
+        console.error('Error in /postWallet:', error); // Log the error
         res.status(500).json({ success: false, message: 'Failed to create wallet' });
     }
 });
 
 
-
 // Get all wallets for the logged-in user
 router.get('/getWallets', protectRoute, async (req, res) => {
+    console.log('Request received at /getWallets'); 
     try {
         const userId = req.user.id; // Extract the logged-in user's ID from the token
         const wallets = await Wallet.find({ uid: userId });
