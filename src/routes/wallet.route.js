@@ -20,7 +20,7 @@ router.post('/postWallet', protectRoute, async (req, res) => {
 
         if(image){
             const uploadResponse = await cloudinary.uploader.upload(image);
-            const imageUrl = uploadResponse.secure_url;
+            imageUrl = uploadResponse.secure_url;
             console.log('Image uploaded successfully:', imageUrl);
 
         }
