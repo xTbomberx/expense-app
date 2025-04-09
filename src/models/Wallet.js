@@ -5,7 +5,7 @@ const walletSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    amount: {
+    balance: {
         type: Number,
         default: 0,
     },
