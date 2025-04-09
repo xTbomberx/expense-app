@@ -17,8 +17,6 @@ router.post('/postWallet', protectRoute, async (req, res) => {
 
         // 2. Update 
         let imageUrl = null
-        console.log(image)
-        
         if(image){
             const uploadResponse = await cloudinary.uploader.upload(image);
             imageUrl = uploadResponse.secure_url;
@@ -59,6 +57,37 @@ router.get('/getWallets', protectRoute, async (req, res) => {
     }
 });
 
+
+router.put('/updateWallet/:id' , protectRoute, async(req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, image } = req.body
+        const userId = req.user.id
+
+        // 1. Check if Wallet exists and belongs to USER
+        const wallet = await Wallet.findOne({ _id: id, uid: userId});
+        if(!wallet) {
+            return res.status(404).json({ success: false, message: 'Wallet not found'});
+        }
+
+        // 2. Handle image upload if a new image is provided
+        if (image) {
+            const uploadResponse = await cloudinary.uploader.upload(image);
+            imageUrl = uploadResponse.secure_url;
+        }
+
+        // 3. Update Wallet in MONGO
+        wallet.name = name || wallet.name
+        wallet.image = imageUrl;
+        await wallet.save();
+
+        // 4. Send JSON object to frontend
+        res.status(200).json({success: true,  wallet})
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Failed to fetch wallets' });
+    }
+})
 
 
 
