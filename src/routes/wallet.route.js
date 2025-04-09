@@ -49,6 +49,8 @@ router.get('/getWallets', protectRoute, async (req, res) => {
         const userId = req.user.id; // Extract the logged-in user's ID from the token
         const wallets = await Wallet.find({ uid: userId });
 
+        console.log(wallets) //debug statement
+        
         res.status(200).json({ success: true, wallets });
     } catch (error) {
         console.error(error);
