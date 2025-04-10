@@ -64,6 +64,7 @@ router.put('/updateWallet/:id' , protectRoute, async(req, res) => {
         const { name, image } = req.body
         const userId = req.user.id
 
+        console.log(req.body)
         // 1. Check if Wallet exists and belongs to USER
         const wallet = await Wallet.findOne({ _id: id, uid: userId});
         if(!wallet) {
