@@ -81,6 +81,7 @@ router.put('/updateWallet/:id' , protectRoute, async(req, res) => {
                 console.error('Cloudinary Upload Error:', uploadError);
                 return res.status(500).json({ success: false, message: 'Failed to upload image' });
             }
+        }
 
         // 3. Update Wallet in MONGO
         wallet.name = name || wallet.name;
