@@ -10,7 +10,7 @@ const router = express.Router();
 
 
 // POST: create new transaction
-router.post('/postTransaction', async(req, res) => {
+router.post('/postTransaction', protectRoute, async(req, res) => {
 	try {
 		const { amount, category, date, description, walletId, type } = req.body;
 		console.log('Request received at /postExpense')
