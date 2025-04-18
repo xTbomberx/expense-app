@@ -1,15 +1,18 @@
 import protectRoute from "../middleware/protectRoute.js";
 import express from 'express'
 import Expense from "../models/Expense.js";
+import Income from "../models/Income.js";
 import Wallet from "../models/Wallet.js";
+
+
 
 const router = express.Router();
 
 
-// POST: create new expennse
-router.post('/postExpense', async(req, res) => {
+// POST: create new transaction
+router.post('/postTransaction', async(req, res) => {
 	try {
-		const { amount, category, date, description, walletId } = req.body;
+		const { amount, category, date, description, walletId, type } = req.body;
 		console.log('Request received at /postExpense')
 
 		// 1. Validation
@@ -20,15 +23,28 @@ router.post('/postExpense', async(req, res) => {
 		// 2. Extract user Id from the token
 		const userId = req.user.id;
 
-		// 3. Create new Expense
-		const expense = await Expense.create({
-			amount,
-			category,
-			date,
-			description,
-			uid: userId,
-			walletId,
-		})
+		// 3. Create new Expense or Income based upon type
+		let transaction;
+		if (type === 'expense') {
+			transaction = await Expense.create({
+				amount,
+				category,
+				date,
+				description,
+				uid: userId,
+				walletId,
+			})
+		} else if (type === 'income') {
+			transaction = await Income.create({
+				amount,
+				date,
+				description,
+				uid: userId,
+				walletId,
+			})
+		} else {
+			return res.status(400).json({ success: false, message: 'Invalid transaction type' });
+		}
 
 		// 4. Add new Expense to walletIds(wallets) totalExpense
 		const wallet = await Wallet.findById(walletId);
@@ -38,12 +54,17 @@ router.post('/postExpense', async(req, res) => {
 		}
 
 		// 4.b. Add to wallet
-		wallet.totalExpense += amount;
-		wallet.balance -= amount;
+		if (type === 'expense') {
+			wallet.totalExpense += amount;
+			wallet.balance -= amount;
+		 } else if (type === 'income') {
+			wallet.totalIncome += amount;
+			wallet.balance += amount;
+		 }
+
 		await wallet.save();
 
-
-		res.status(201).json({succes: true, expense})
+		res.status(201).json({succes: true, transaction})
 
 	} catch(error){
 		console.error('Error creating expense: ', error);
