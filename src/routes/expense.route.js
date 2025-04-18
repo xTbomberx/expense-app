@@ -1,6 +1,7 @@
 import protectRoute from "../middleware/protectRoute.js";
 import express from 'express'
 import Expense from "../models/Expense.js";
+import Wallet from "../models/Wallet.js";
 
 const router = express.Router();
 
@@ -28,6 +29,19 @@ router.post('/postExpense', async(req, res) => {
 			uid: userId,
 			walletId,
 		})
+
+		// 4. Add new Expense to walletIds(wallets) totalExpense
+		const wallet = await Wallet.findById(walletId);
+
+		if(!wallet){
+			return res.status(404).json({success: false, message: "Wallet not found"})
+		}
+
+		// 4.b. Add to wallet
+		wallet.totalExpense += amount;
+		wallet.balance -= amount;
+		await wallet.save();
+
 
 		res.status(201).json({succes: true, expense})
 
