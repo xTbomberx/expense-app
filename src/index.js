@@ -7,6 +7,7 @@ import 'dotenv/config'
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.route.js'
 import walletRoutes from './routes/wallet.route.js'
+import expenseRoutes from './routes/expense.route.js'
 // import authRoutes from './routes/auth.routes.js'
 // import bookRoutes from './/routes/book.routes.js'
 
@@ -30,6 +31,7 @@ app.get('/here', (req,res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/wallet', walletRoutes)
+app.use('api/expenses', expenseRoutes);
 
 
 
