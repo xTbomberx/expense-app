@@ -14,7 +14,7 @@ router.post('/postTransaction', protectRoute, async(req, res) => {
 	try {
 		const { amount, category, date, description, walletId, type } = req.body;
 		console.log('Request received at /postExpense')
-
+		console.log(req.body)
 		// 1. Validation
 		if(!amount || !category || !walletId) {
 			return res.status(404).json({ success: false, message: 'Please provide all expense fields'});
