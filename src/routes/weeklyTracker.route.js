@@ -13,7 +13,7 @@ router.get('/getStartOfWeek', protectRoute, async(req, res) => {
 
 		// 2. Search for latest Week
 		const latestWeek = await WeeklyTracker.findOne({
-			user:userId
+			uid:userId
 		}).sort({startOfWeek: -1});
 
 		// Error Check
