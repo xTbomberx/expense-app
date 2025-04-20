@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.get('/getStartOfWeek', protectRoute, async(req, res) => {
 	try {
+		console.log('Request received at /getStartOfWeek')
 		// 1. Grab User from protectRoute
 		const userId = req.user.id;
 
