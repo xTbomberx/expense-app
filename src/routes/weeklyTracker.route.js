@@ -20,7 +20,14 @@ router.get('/getStartOfWeek', protectRoute, async(req, res) => {
 		if (!latestWeek) {
 			return res.status(404).json({ success: false, message: 'No weekly tracker found' });
 		 }
-
+		// 3. Ensure the start of the week is Sunday
+		const startOfWeek = new Date(latestWeek.startOfWeek);
+		const dayOfWeek = startOfWeek.getDay(); // Get the day of the week (0 = Sunday, 1 = Monday, etc.)
+		if (dayOfWeek !== 0) {
+			// Adjust to the previous Sunday
+			startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek);
+		}
+		
 		// 3. return the data
 		res.status(200).json({
 			success: true,
