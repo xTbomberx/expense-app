@@ -1,5 +1,5 @@
 import express from 'express';
-import WeeklyTracker from '../models/WeeklyTracker.js';
+import WeeklyTracker from '../models/StartofWeek.js';
 import protectRoute from '../middleware/protectRoute.js';
 
 
