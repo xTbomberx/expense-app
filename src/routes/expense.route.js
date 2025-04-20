@@ -76,6 +76,7 @@ router.post('/postTransaction', protectRoute, async(req, res) => {
 // GET: Retrieve all expenses for the logged-in user
 router.get('/getExpenses', protectRoute, async (req, res) => {
 	try {
+		console.log('Request received at /getExpenses')
 	    const userId = req.user.id; // Extract user ID from the token
  
 	    // Find all expenses for the user
