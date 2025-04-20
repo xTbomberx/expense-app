@@ -5,6 +5,7 @@ import cloudinary from '../config/cloudinary.js'
 import protectRoute from '../middleware/protectRoute.js';
 import WeeklyTracker from '../models/WeeklyTracker.js';
 
+
 const router = express.Router();
 
 // UTIL - Function
