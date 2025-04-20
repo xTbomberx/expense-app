@@ -63,7 +63,7 @@ router.post('/register', async(req, res) => {
 		// Create User & WeeklyTracker
 		await user.save();
 		await WeeklyTracker.create({
-			uid: newUser._id,
+			uid: user._id,
 			startOfWeek
 		})
   
