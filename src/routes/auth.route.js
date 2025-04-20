@@ -3,6 +3,7 @@ import User from '../models/User.js'
 import jwt from 'jsonwebtoken'
 import cloudinary from '../config/cloudinary.js'
 import protectRoute from '../middleware/protectRoute.js';
+import WeeklyTracker from '../models/WeeklyTracker.js';
 
 const router = express.Router();
 
@@ -52,8 +53,20 @@ router.post('/register', async(req, res) => {
 		    password,
 		    // profileImage
 		})
-  
+
+		// Calculate Start of Current Week (Sunday)
+		const startOfWeek = new Date();
+		startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+		startOfWeek.setHours(0,0,0,0) // Set to Midnight
+
+		// Create User & WeeklyTracker
 		await user.save();
+		await WeeklyTracker.create({
+			uid: newUser._id,
+			startOfWeek
+		})
+  
+
   
 		const token = generateToken(user._id);
   
