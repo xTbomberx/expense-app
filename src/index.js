@@ -32,7 +32,7 @@ app.get('/here', (req,res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/wallet', walletRoutes)
 app.use('/api/expenses', expenseRoutes);
-app.use('/api/weekly/getStartOfWeek', trackerRoutes)
+app.use('/api/weekly', trackerRoutes)
 
 
 
