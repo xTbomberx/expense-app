@@ -16,5 +16,5 @@ const WeeklyTrackerSchema = new mongoose.Schema({
 		}
 })
 
-const StartOfWeek = mongoose.model('Income', WeeklyTrackerSchema)
+const StartOfWeek = mongoose.model('StartOfWeek', WeeklyTrackerSchema)
 export default StartOfWeek;
