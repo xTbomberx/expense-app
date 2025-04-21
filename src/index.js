@@ -9,7 +9,7 @@ import authRoutes from './routes/auth.route.js'
 import walletRoutes from './routes/wallet.route.js'
 import expenseRoutes from './routes/expense.route.js'
 import trackerRoutes from './routes/weeklyTracker.route.js'
-
+import billRoutes from './routes/bill.route.js'
 
 
 const app = express();
@@ -33,7 +33,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/wallet', walletRoutes)
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/weekly', trackerRoutes)
-
+app.use('/api/bills', billRoutes)
 
 
 
