@@ -10,6 +10,10 @@ const WeeklyTrackerSchema = new mongoose.Schema({
 			type: Date,
 			required: true
 		},
+		endOfWeek: {
+			type: Date,
+			required: true
+		},
 		createdAt: {
 			type: Date, 
 			default: Date.now

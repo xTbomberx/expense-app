@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config'
-import job from './crons/cron.js';
+import {weeklyJob, monthlyJob} from './crons/cron.js';
 
 // Routes Imports
 import { connectDB } from './config/db.js';
@@ -18,7 +18,10 @@ const API_URL = process.env.API_URL
 
 
 // MiddleWare - CronJobs
-job.start() 
+// Middleware - CronJobs
+weeklyJob.start(); // Start the weekly tracker cron job
+monthlyJob.start(); // Start the monthly tracker cron job
+
 app.use(express.json({
     limit: '50MB',
   }));
