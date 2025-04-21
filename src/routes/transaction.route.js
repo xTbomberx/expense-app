@@ -47,7 +47,7 @@ router.post('/postTransaction', protectRoute, async(req, res) => {
 			return res.status(400).json({ success: false, message: 'Invalid transaction type' });
 		}
 
-		// 4. Add new Expense to walletIds(wallets) totalExpense
+		// 4. Add new Expense/Income to walletIds(wallets) totalExpense
 		const wallet = await Wallet.findById(walletId);
 
 		if(!wallet){
@@ -89,6 +89,25 @@ router.get('/getExpenses', protectRoute, async (req, res) => {
 	}
  });
 
+
+// Get: Retrieve all incomes for the logged-in user
+router.get('/getIncomes', protectRoute, async(req,res) => {
+	try {
+		console.log('Request recieve at /getIncomes')
+		const userId = req.user.id
+
+		// Find all incomes for the user
+		const incomes = await Income.find({uid: userId}).sort({date: -1});
+
+		res.status(200).json({success: true, incomes});
+	} catch(error) {
+		console.error('Error retrieving incomes: ', error);
+		res.status(500).json({success: false, message: 'Failed to fetch incomes'});
+	}
+})
+
+
+
 // PUT: Update an expense
 router.put('/updateExpense/:id', protectRoute, async (req, res) => {
 	try {
@@ -119,6 +138,8 @@ router.put('/updateExpense/:id', protectRoute, async (req, res) => {
 	}
  });
 
+
+ 
  // DELETE: Delete an expense
 router.delete('/deleteExpense/:id', protectRoute, async (req, res) => {
 	try {
