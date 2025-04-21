@@ -3,8 +3,8 @@ import express from 'express'
 import Expense from "../models/Expense.js";
 import Income from "../models/Income.js";
 import Wallet from "../models/Wallet.js";
-
-
+import WeeklyTracker from '../models/StartofWeek.js';
+import MonthlyTracker from '../models/Monthly.js'
 
 const router = express.Router();
 
@@ -90,7 +90,7 @@ router.get('/getExpenses', protectRoute, async (req, res) => {
  });
 
 
-// Get: Retrieve all incomes for the logged-in user
+ // Get: Retrieve all incomes for the logged-in user
 router.get('/getIncomes', protectRoute, async(req,res) => {
 	try {
 		console.log('Request recieve at /getIncomes')
@@ -105,6 +105,163 @@ router.get('/getIncomes', protectRoute, async(req,res) => {
 		res.status(500).json({success: false, message: 'Failed to fetch incomes'});
 	}
 })
+
+// Get: Recent Weekly Expenses
+router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
+	try{
+		console.log('Request received at /getCurrentWeekExpenses')
+
+		// 1. Find the most recently weekly tracker for user 
+		// payload = (weeklyTracker.startOfWeek, weeklyTracker.id , weeklyTracker.uid)
+		const latestWeeklyTracker = await WeeklyTracker.findOne({uid: req.user.id})
+			.sort({startOfWeek: -1 }) // Sort the array  of weeks (descending order/ most recent)
+			.limit(1) // Get the most recent 1
+
+		if(!latestWeeklyTracker) {
+			return res.status(404).json({success: false, message:'No weekly tracker found'})
+		}
+
+		// 1.b. grab these two constants from the object latestWeeklyTracker
+		const {startOfWeek, endOfWeek} = latestWeeklyTracker;
+
+		// 2.  Fetch expenses for the most recent week
+		const expenses = await Expense.find({
+			uid: req.user.id,
+			date: {$gte: startOfWeek, $lte: endOfWeek}
+		})
+
+		// 3. Send Info to frontend
+		res.status(200).json({success: true, expense})
+	} catch(error) {
+		console.error('Error fetch weekly expenses: ', error)
+		res.status(500).json({success: false, message: "Failed to fetch weekly expenses"})
+	}
+})
+
+// Get: Recent Weekly Incomes
+router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
+	try {
+	    console.log('Request received at /getCurrentWeekIncomes');
+ 
+	    // 1. Find the most recent weekly tracker for the user
+	    const latestWeeklyTracker = await WeeklyTracker.findOne({ uid: req.user.id })
+		   .sort({ startOfWeek: -1 }) // Sort by startOfWeek in descending order
+		   .limit(1); // Get the most recent one
+ 
+	    if (!latestWeeklyTracker) {
+		   return res.status(404).json({ success: false, message: 'No weekly tracker found' });
+	    }
+ 
+	    const { startOfWeek, endOfWeek } = latestWeeklyTracker;
+ 
+	    // 2. Fetch incomes for the most recent week
+	    const incomes = await Income.find({
+		   uid: req.user.id,
+		   date: { $gte: startOfWeek, $lte: endOfWeek },
+	    });
+ 
+	    // 3. Send incomes to the frontend
+	    res.status(200).json({ success: true, incomes });
+	} catch (error) {
+	    console.error('Error fetching weekly incomes:', error);
+	    res.status(500).json({ success: false, message: 'Failed to fetch weekly incomes' });
+	}
+ });
+
+
+router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
+	try {
+		console.log('Req received at /getCurrentMonthlyExpenses')
+
+		// 1. Find recent/current month
+		const latestMonthlyTracker = await MonthlyTracker.findOne({uid: req.user.id})
+			.sort({startOfMonttth: -1}) // Sort Array in descending/recent order
+			.limit(1) // Get most recent 1
+
+		// 2. Error Check
+		if (!latestMonthlyTracker) {
+			return res.status(404).json({ success: false, message: 'No monthly tracker found' });
+		}
+
+		// 3. Grab Variables from OBJECT
+		const {startOfMonth , endOfMonth} = latestMonthlyTracker;
+
+		// 4. Fetch expenses from current month
+		const expenses = await Expense.find({
+			uid: req.user.id,
+			// Date: greater then start of month (4.1), less then end of month (4.30) = 4.2 -- 4.29
+			date: { $gte: startOfMonth, $lte: endOfMonth} 
+		})
+
+		// 5. Send back expenses
+		res.status(200).json({success: true, expenses})
+	} catch(error) {
+		console.error('Error fetching current month expenses:', error);
+		res.status(500).json({ success: false, message: 'Failed to fetch current month expenses' });
+	
+	}
+})
+
+// Get: Current Month Incomes
+router.get('/getCurrentMonthIncomes', protectRoute, async (req, res) => {
+	try {
+	    console.log('Request received at /getCurrentMonthIncomes');
+ 
+	    // 1. Find the most recent monthly tracker for the user
+	    const latestMonthlyTracker = await MonthlyTracker.findOne({ uid: req.user.id })
+		   .sort({ startOfMonth: -1 }) // Sort by startOfMonth in descending order
+		   .limit(1); // Get the most recent one
+ 
+	    if (!latestMonthlyTracker) {
+		   return res.status(404).json({ success: false, message: 'No monthly tracker found' });
+	    }
+ 
+	    const { startOfMonth, endOfMonth } = latestMonthlyTracker;
+ 
+	    // 2. Fetch incomes for the current month
+	    const incomes = await Income.find({
+		   uid: req.user.id,
+		   date: { $gte: startOfMonth, $lte: endOfMonth },
+	    });
+ 
+	    // 3. Send incomes to the frontend
+	    res.status(200).json({ success: true, incomes });
+	} catch (error) {
+	    console.error('Error fetching current month incomes:', error);
+	    res.status(500).json({ success: false, message: 'Failed to fetch current month incomes' });
+	}
+ });
+
+// Get: Current Month Bills
+router.get('/getCurrentMonthBills', protectRoute, async (req, res) => {
+	try {
+	    console.log('Request received at /getCurrentMonthBills');
+ 
+	    // Find the most recent monthly tracker for the user
+	    const latestMonthlyTracker = await MonthlyTracker.findOne({ uid: req.user.id })
+		   .sort({ startOfMonth: -1 }) // Sort by startOfMonth in descending order
+		   .limit(1); // Get the most recent one
+ 
+	    if (!latestMonthlyTracker) {
+		   return res.status(404).json({ success: false, message: 'No monthly tracker found' });
+	    }
+ 
+	    const { startOfMonth, endOfMonth } = latestMonthlyTracker;
+ 
+	    // Fetch bills (expenses with category "bills") for the current month
+	    const bills = await Expense.find({
+		   uid: req.user.id,
+		   category: 'bills', // Filter by category "bills"
+		   date: { $gte: startOfMonth, $lte: endOfMonth },
+	    });
+ 
+	    res.status(200).json({ success: true, bills });
+	} catch (error) {
+	    console.error('Error fetching current month bills:', error);
+	    res.status(500).json({ success: false, message: 'Failed to fetch current month bills' });
+	}
+ });
+
 
 
 
@@ -139,7 +296,6 @@ router.put('/updateExpense/:id', protectRoute, async (req, res) => {
  });
 
 
- 
  // DELETE: Delete an expense
 router.delete('/deleteExpense/:id', protectRoute, async (req, res) => {
 	try {
@@ -160,4 +316,5 @@ router.delete('/deleteExpense/:id', protectRoute, async (req, res) => {
 	    res.status(500).json({ success: false, message: 'Failed to delete expense' });
 	}
  });
+
 export default router

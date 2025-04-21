@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000; // provides default VALUE if first is FAL
 const API_URL = process.env.API_URL
 
 
-// MiddleWare - CronJobs
+
 // Middleware - CronJobs
 weeklyJob.start(); // Start the weekly tracker cron job
 monthlyJob.start(); // Start the monthly tracker cron job
