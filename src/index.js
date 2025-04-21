@@ -7,7 +7,7 @@ import job from './crons/cron.js';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.route.js'
 import walletRoutes from './routes/wallet.route.js'
-import expenseRoutes from './routes/expense.route.js'
+import expenseRoutes from './routes/transaction.route.js'
 import trackerRoutes from './routes/weeklyTracker.route.js'
 import billRoutes from './routes/bill.route.js'
 
