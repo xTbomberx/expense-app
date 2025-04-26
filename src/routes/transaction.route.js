@@ -131,7 +131,7 @@ router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
 		})
 
 		// 3. Send Info to frontend
-		res.status(200).json({success: true, expense})
+		res.status(200).json({success: true, expenses})
 	} catch(error) {
 		console.error('Error fetch weekly expenses: ', error)
 		res.status(500).json({success: false, message: "Failed to fetch weekly expenses"})
@@ -297,20 +297,35 @@ router.put('/updateExpense/:id', protectRoute, async (req, res) => {
 
 
  // DELETE: Delete an expense
-router.delete('/deleteExpense/:id', protectRoute, async (req, res) => {
+router.delete('/deleteTransaction/:id', protectRoute, async (req, res) => {
 	try {
-	    const { id } = req.params;
-	    const userId = req.user.id;
- 
-	    // Find and delete the expense
-	    const expense = await Expense.findOneAndDelete({ _id: id, uid: userId });
+	     const { id } = req.params;
+	     const userId = req.user.id;
+		const {type} = req.query // Get type from payload 
 
-	    // If check - doesnt exist
-	    if (!expense) {
-		   return res.status(404).json({ success: false, message: 'Expense not found' });
-	    }
+		// 2. Error check for TYPE
+		if (!type) {
+			return res.status(400).json({ success: false, message: 'Transaction type is required' });
+		 }
+   
+		let transaction;
+   
+		// 3. Check type and delete Appropriate collecction
+		if(type === 'expense') {
+			// Find and delete the expense
+			transaction = await Expense.findOneAndDelete({ _id: id, uid: userId });
+		} else if (type === 'income') {
+			transaction = await Income.findOneAndDelete({_id: id, uid: userId})
+		} else {
+			return res.status(400).json({success: false, message: "Invalid transaction ID"})
+		}
+
+		// If the transaction does not exist
+		if(!transaction) {
+			return res.status(404).json({success: false, message: 'Transaction does not exist'})
+		}
  
-	    res.status(200).json({ success: true, message: 'Expense deleted successfully' });
+	    res.status(200).json({ success: true, message: 'Transaction deleted successfully' });
 	} catch (error) {
 	    console.error('Error deleting expense:', error);
 	    res.status(500).json({ success: false, message: 'Failed to delete expense' });
