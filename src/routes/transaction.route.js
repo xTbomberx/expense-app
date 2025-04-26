@@ -271,7 +271,11 @@ router.put('/updateExpense/:id', protectRoute, async (req, res) => {
 	    const { id } = req.params;
 	    const { amount, category, date, description } = req.body;
 	    const userId = req.user.id;
- 
+         // Debugging logs
+	    console.log('Update Expense Request ID:', id);
+	    console.log('Update Expense User ID:', userId);
+	    console.log('Update Expense Body:', req.body);
+	    
 	    // Find the expense and ensure it belongs to the user
 	    const expense = await Expense.findOne({ _id: id, uid: userId });
 
