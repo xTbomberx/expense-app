@@ -140,7 +140,7 @@ router.get('/getIncomes', protectRoute, async(req,res) => {
 })
 
 // Get: Recent Weekly Expenses
-router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
+router.get('/getCurrentWeekExpenses', protectRoute, async(req,res) => {
 	try{
 		console.log('Request received at /getCurrentWeekExpenses')
 
