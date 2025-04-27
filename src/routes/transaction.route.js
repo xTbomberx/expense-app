@@ -150,7 +150,8 @@ router.get('/getCurrentWeekExpenses', protectRoute, async(req,res) => {
 		// 2.  Fetch expenses for the most recent week
 		const expenses = await Expense.find({
 			uid: req.user.id,
-			date: {$gte: startOfWeek, $lte: endOfWeek}
+			date: {$gte: startOfWeek, $lte: endOfWeek},
+			category: {$ne: 'bills'} // Excludes 'bills' categories
 		})
 
 		// 3. Send Info to frontend
