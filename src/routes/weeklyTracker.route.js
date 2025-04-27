@@ -28,7 +28,7 @@ const getStartAndEndOfWeek = (date = new Date()) => {
 
 router.get('/getStartOfWeek', protectRoute, async(req, res) => {
 	try {
-		console.log('Request received at /getStartOfWeek')
+		//console.log('Request received at /getStartOfWeek')
 
 		// 1. Grab User from protectRoute
 		//const userId = req.user.id;

@@ -126,7 +126,7 @@ router.get('/getExpenses', protectRoute, async (req, res) => {
  // Get: Retrieve all incomes for the logged-in user
 router.get('/getIncomes', protectRoute, async(req,res) => {
 	try {
-		//console.log('Request recieve at /getIncomes')
+		console.log('Request recieve at /getIncomes')
 		const userId = req.user.id
 
 		// Find all incomes for the user
@@ -142,7 +142,7 @@ router.get('/getIncomes', protectRoute, async(req,res) => {
 // Get: Recent Weekly Expenses
 router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
 	try{
-		//console.log('Request received at /getCurrentWeekExpenses')
+		console.log('Request received at /getCurrentWeekExpenses')
 
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -165,7 +165,7 @@ router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
 // Get: Recent Weekly Incomes
 router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 	try {
-	    //console.log('Request received at /getCurrentWeekIncomes');
+	    console.log('Request received at /getCurrentWeekIncomes');
  
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -238,7 +238,7 @@ router.get('/getCurrentMonthBills', protectRoute, async (req, res) => {
 	    //console.log('Request received at /getCurrentMonthBills');
  
          // Dynamically calculate the start and end of the month
-	    const { startOfMonth, endOfMonth } = latestMonthlyTracker;
+	    const { startOfMonth, endOfMonth } = getStartAndEndOfMonth()
  
 	    // Fetch bills (expenses with category "bills") for the current month
 	    const bills = await Expense.find({
