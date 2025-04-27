@@ -4,7 +4,6 @@ import Expense from "../models/Expense.js";
 import Income from "../models/Income.js";
 import Wallet from "../models/Wallet.js";
 
-import MonthlyTracker from '../models/Monthly.js'
 
 const router = express.Router();
 
