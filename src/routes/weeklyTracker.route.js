@@ -35,12 +35,12 @@ router.get('/getStartOfWeek', protectRoute, async(req, res) => {
 		// 2. Dynamically calculate the start/end of week
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
 
-		// 3. Return the calculated dates
-		res.status(200).json({
-			success: true,
-			startOfWeek,
-			endOfWeek,
-		});
+        // 3. Return the calculated dates as ISO strings
+        res.status(200).json({
+		success: true,
+		startOfWeek: startOfWeek.toISOString(), // Convert to ISO string
+		endOfWeek: endOfWeek.toISOString(), // Convert to ISO string
+	 });
 
 	} catch(error) {
 		console.error('Error retrieving start of week: ',error)
