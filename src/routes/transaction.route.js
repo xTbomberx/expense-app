@@ -3,10 +3,43 @@ import express from 'express'
 import Expense from "../models/Expense.js";
 import Income from "../models/Income.js";
 import Wallet from "../models/Wallet.js";
-import WeeklyTracker from '../models/StartofWeek.js';
+
 import MonthlyTracker from '../models/Monthly.js'
 
 const router = express.Router();
+
+// Utility function to calculate start and end of the week
+const getStartAndEndOfWeek = (date = new Date()) => {
+	// Set the Date to start of the week
+	const startOfWeek = new Date(date);
+
+	// 1. Sets current day to Sunday
+	startOfWeek.setDate(date.getDate() - date.getDay())
+	startOfWeek.setHours(0,0,0,0) // Set time to Midnight
+
+	// 2. Set date to end of week
+	const endOfWeek = new Date(startOfWeek);
+	endOfWeek.setDate(startOfWeek.getDate() + 6) // Add 6 days to get Saturday
+	endOfWeek.setHours(23,59,59,999) // Set time to end of day
+
+	return (startOfWeek, endOfWeek)
+}
+
+const getStartAndEndOfMonth = (date = new Date()) => {
+
+	// Start of the month
+	const startOfMonth = new Date(date);
+	startOfMonth.setDate(1) // Set date --> to the 1rst
+	startOfMonth.setHours(0,0,0,0) // Set time to midnight
+
+	// End of Month
+	const endOfMonth = new Date(startOfMonth);
+	endOfMonth.setMonth(startOfMonth.getMonth() + 1)// Move to May 1, 2025
+	endOfMonth.setDate(0); // Move back one day to April 30, 2025
+	endOfMonth.setHours(23,59,59,999) // Set time to end of the dday
+
+	return { startOfMonth, endOfMonth}
+}
 
 
 // POST: create new transaction
@@ -111,18 +144,8 @@ router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
 	try{
 		console.log('Request received at /getCurrentWeekExpenses')
 
-		// 1. Find the most recently weekly tracker for user 
-		// payload = (weeklyTracker.startOfWeek, weeklyTracker.id , weeklyTracker.uid)
-		const latestWeeklyTracker = await WeeklyTracker.findOne({uid: req.user.id})
-			.sort({startOfWeek: -1 }) // Sort the array  of weeks (descending order/ most recent)
-			.limit(1) // Get the most recent 1
-
-		if(!latestWeeklyTracker) {
-			return res.status(404).json({success: false, message:'No weekly tracker found'})
-		}
-
-		// 1.b. grab these two constants from the object latestWeeklyTracker
-		const {startOfWeek, endOfWeek} = latestWeeklyTracker;
+		// 1. Find EOW/SOW
+		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
 
 		// 2.  Fetch expenses for the most recent week
 		const expenses = await Expense.find({
@@ -132,6 +155,7 @@ router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
 
 		// 3. Send Info to frontend
 		res.status(200).json({success: true, expenses})
+
 	} catch(error) {
 		console.error('Error fetch weekly expenses: ', error)
 		res.status(500).json({success: false, message: "Failed to fetch weekly expenses"})
@@ -143,17 +167,9 @@ router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 	try {
 	    console.log('Request received at /getCurrentWeekIncomes');
  
-	    // 1. Find the most recent weekly tracker for the user
-	    const latestWeeklyTracker = await WeeklyTracker.findOne({ uid: req.user.id })
-		   .sort({ startOfWeek: -1 }) // Sort by startOfWeek in descending order
-		   .limit(1); // Get the most recent one
- 
-	    if (!latestWeeklyTracker) {
-		   return res.status(404).json({ success: false, message: 'No weekly tracker found' });
-	    }
- 
-	    const { startOfWeek, endOfWeek } = latestWeeklyTracker;
- 
+		// 1. Find EOW/SOW
+		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
+
 	    // 2. Fetch incomes for the most recent week
 	    const incomes = await Income.find({
 		   uid: req.user.id,
@@ -173,28 +189,19 @@ router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	try {
 		console.log('Req received at /getCurrentMonthlyExpenses')
 
-		// 1. Find recent/current month
-		const latestMonthlyTracker = await MonthlyTracker.findOne({uid: req.user.id})
-			.sort({startOfMonttth: -1}) // Sort Array in descending/recent order
-			.limit(1) // Get most recent 1
+		// 1. Find EOM/SOM
+		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
 
-		// 2. Error Check
-		if (!latestMonthlyTracker) {
-			return res.status(404).json({ success: false, message: 'No monthly tracker found' });
-		}
-
-		// 3. Grab Variables from OBJECT
-		const {startOfMonth , endOfMonth} = latestMonthlyTracker;
-
-		// 4. Fetch expenses from current month
+		// 2. Fetch expenses from current month
 		const expenses = await Expense.find({
 			uid: req.user.id,
 			// Date: greater then start of month (4.1), less then end of month (4.30) = 4.2 -- 4.29
 			date: { $gte: startOfMonth, $lte: endOfMonth} 
 		})
 
-		// 5. Send back expenses
+		// 3. Send back expenses
 		res.status(200).json({success: true, expenses})
+
 	} catch(error) {
 		console.error('Error fetching current month expenses:', error);
 		res.status(500).json({ success: false, message: 'Failed to fetch current month expenses' });
@@ -207,17 +214,9 @@ router.get('/getCurrentMonthIncomes', protectRoute, async (req, res) => {
 	try {
 	    console.log('Request received at /getCurrentMonthIncomes');
  
-	    // 1. Find the most recent monthly tracker for the user
-	    const latestMonthlyTracker = await MonthlyTracker.findOne({ uid: req.user.id })
-		   .sort({ startOfMonth: -1 }) // Sort by startOfMonth in descending order
-		   .limit(1); // Get the most recent one
- 
-	    if (!latestMonthlyTracker) {
-		   return res.status(404).json({ success: false, message: 'No monthly tracker found' });
-	    }
- 
-	    const { startOfMonth, endOfMonth } = latestMonthlyTracker;
- 
+		// 1. Find EOM/SOM
+		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
+
 	    // 2. Fetch incomes for the current month
 	    const incomes = await Income.find({
 		   uid: req.user.id,
@@ -226,6 +225,7 @@ router.get('/getCurrentMonthIncomes', protectRoute, async (req, res) => {
  
 	    // 3. Send incomes to the frontend
 	    res.status(200).json({ success: true, incomes });
+
 	} catch (error) {
 	    console.error('Error fetching current month incomes:', error);
 	    res.status(500).json({ success: false, message: 'Failed to fetch current month incomes' });
@@ -237,15 +237,7 @@ router.get('/getCurrentMonthBills', protectRoute, async (req, res) => {
 	try {
 	    console.log('Request received at /getCurrentMonthBills');
  
-	    // Find the most recent monthly tracker for the user
-	    const latestMonthlyTracker = await MonthlyTracker.findOne({ uid: req.user.id })
-		   .sort({ startOfMonth: -1 }) // Sort by startOfMonth in descending order
-		   .limit(1); // Get the most recent one
- 
-	    if (!latestMonthlyTracker) {
-		   return res.status(404).json({ success: false, message: 'No monthly tracker found' });
-	    }
- 
+         // Dynamically calculate the start and end of the month
 	    const { startOfMonth, endOfMonth } = latestMonthlyTracker;
  
 	    // Fetch bills (expenses with category "bills") for the current month

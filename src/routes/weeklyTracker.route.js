@@ -1,38 +1,47 @@
 import express from 'express';
-import WeeklyTracker from '../models/StartofWeek.js';
+
 import protectRoute from '../middleware/protectRoute.js';
 
 
 const router = express.Router();
 
+// Utility function to calculate start and end of the week
+const getStartAndEndOfWeek = (date = new Date()) => {
+	// Set the Date to start of the week
+	const startOfWeek = new Date(date);
+
+	// 1. Sets current day to Sunday
+	startOfWeek.setDate(date.getDate() - date.getDay())
+	startOfWeek.setHours(0,0,0,0) // Set time to Midnight
+
+	// 2. Set date to end of week
+	const endOfWeek = new Date(startOfWeek);
+	endOfWeek.setDate(startOfWeek.getDate() + 6) // Add 6 days to get Saturday
+	endOfWeek.setHours(23,59,59,999) // Set time to end of day
+
+	return (startOfWeek, endOfWeek)
+}
+
+
+
+
 router.get('/getStartOfWeek', protectRoute, async(req, res) => {
 	try {
 		console.log('Request received at /getStartOfWeek')
+
 		// 1. Grab User from protectRoute
 		const userId = req.user.id;
 
-		// 2. Search for latest Week
-		const latestWeek = await WeeklyTracker.findOne({
-			uid:userId
-		}).sort({startOfWeek: -1});
+		// 2. Dynamically calculate the start/end of week
+		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
 
-		// Error Check
-		if (!latestWeek) {
-			return res.status(404).json({ success: false, message: 'No weekly tracker found' });
-		 }
-		// 3. Ensure the start of the week is Sunday
-		const startOfWeek = new Date(latestWeek.startOfWeek);
-		const dayOfWeek = startOfWeek.getDay(); // Get the day of the week (0 = Sunday, 1 = Monday, etc.)
-		if (dayOfWeek !== 0) {
-			// Adjust to the previous Sunday
-			startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek);
-		}
-		
-		// 3. return the data
+		// 3. Return the calculated dates
 		res.status(200).json({
 			success: true,
-			startOfWeek: latestWeek.startOfWeek
-		})
+			startOfWeek,
+			endOfWeek,
+		});
+
 	} catch(error) {
 		console.error('Error retrieving start of week: ',error)
 		res.status(500).json({success: false, message: 'Failed to retrieve start of week'})

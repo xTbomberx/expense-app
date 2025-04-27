@@ -56,41 +56,10 @@ router.post('/register', async(req, res) => {
 		    // profileImage
 		})
 
-		// Calculate Start of Current Week (Sunday)
-		const startOfWeek = new Date();
-		startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-		startOfWeek.setHours(0, 0, 0, 0); // Set to Midnight
-
-		const endOfWeek = new Date(startOfWeek); // Becomes same value as start of week
-		endOfWeek.setDate(startOfWeek.getDate() + 6) // Set to Saturday
-		endOfWeek.setHours(23,59,59,999)
-
-		// Calculate Start and End of Current Month
-		const startOfMonth = new Date();
-		startOfMonth.setDate(1); // Set to the first day of the month
-		startOfMonth.setHours(0, 0, 0, 0); // Set to Midnight
-
-		const endOfMonth = new Date(startOfMonth);
-		endOfMonth.setMonth(startOfMonth.getMonth() + 1); // Move to the next month
-		endOfMonth.setDate(0); // Set to the last day of the current month
-		endOfMonth.setHours(23, 59, 59, 999); // Set to the end of the day
-
 
 		// Create User & WeeklyTracker
 		await user.save();
 		
-		await WeeklyTracker.create({
-			uid: user._id,
-			startOfWeek,
-			endOfWeek
-		})
-		
-		await MonthlyTracker.create({
-			uid: user._id,
-			startOfMonth,
-			endOfMonth
-		})
-
   
 		const token = generateToken(user._id);
   
