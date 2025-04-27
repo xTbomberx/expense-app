@@ -19,7 +19,8 @@ const getStartAndEndOfWeek = (date = new Date()) => {
 	endOfWeek.setDate(startOfWeek.getDate() + 6) // Add 6 days to get Saturday
 	endOfWeek.setHours(23,59,59,999) // Set time to end of day
 
-	return (startOfWeek, endOfWeek)
+	    // Return both startOfWeek and endOfWeek as an object
+	return { startOfWeek, endOfWeek };
 }
 
 
