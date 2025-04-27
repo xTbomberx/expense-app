@@ -109,7 +109,7 @@ router.post('/postTransaction', protectRoute, async(req, res) => {
 // GET: Retrieve all expenses for the logged-in user
 router.get('/getExpenses', protectRoute, async (req, res) => {
 	try {
-		console.log('Request received at /getExpenses')
+		//console.log('Request received at /getExpenses')
 	    const userId = req.user.id; // Extract user ID from the token
  
 	    // Find all expenses for the user
@@ -126,7 +126,7 @@ router.get('/getExpenses', protectRoute, async (req, res) => {
  // Get: Retrieve all incomes for the logged-in user
 router.get('/getIncomes', protectRoute, async(req,res) => {
 	try {
-		console.log('Request recieve at /getIncomes')
+		//console.log('Request recieve at /getIncomes')
 		const userId = req.user.id
 
 		// Find all incomes for the user
@@ -142,7 +142,7 @@ router.get('/getIncomes', protectRoute, async(req,res) => {
 // Get: Recent Weekly Expenses
 router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
 	try{
-		console.log('Request received at /getCurrentWeekExpenses')
+		//console.log('Request received at /getCurrentWeekExpenses')
 
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -165,7 +165,7 @@ router.get('getCurrentWeekExpenses', protectRoute, async(req,res) => {
 // Get: Recent Weekly Incomes
 router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 	try {
-	    console.log('Request received at /getCurrentWeekIncomes');
+	    //console.log('Request received at /getCurrentWeekIncomes');
  
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -187,7 +187,7 @@ router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 
 router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	try {
-		console.log('Req received at /getCurrentMonthlyExpenses')
+		//console.log('Req received at /getCurrentMonthlyExpenses')
 
 		// 1. Find EOM/SOM
 		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
@@ -212,7 +212,7 @@ router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 // Get: Current Month Incomes
 router.get('/getCurrentMonthIncomes', protectRoute, async (req, res) => {
 	try {
-	    console.log('Request received at /getCurrentMonthIncomes');
+	    //console.log('Request received at /getCurrentMonthIncomes');
  
 		// 1. Find EOM/SOM
 		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
@@ -235,7 +235,7 @@ router.get('/getCurrentMonthIncomes', protectRoute, async (req, res) => {
 // Get: Current Month Bills
 router.get('/getCurrentMonthBills', protectRoute, async (req, res) => {
 	try {
-	    console.log('Request received at /getCurrentMonthBills');
+	    //console.log('Request received at /getCurrentMonthBills');
  
          // Dynamically calculate the start and end of the month
 	    const { startOfMonth, endOfMonth } = latestMonthlyTracker;
