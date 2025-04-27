@@ -3,9 +3,6 @@ import User from '../models/User.js'
 import jwt from 'jsonwebtoken'
 import cloudinary from '../config/cloudinary.js'
 import protectRoute from '../middleware/protectRoute.js';
-import WeeklyTracker from '../models/StartofWeek.js';
-import MonthlyTracker from '../models/Monthly.js';
-
 
 const router = express.Router();
 
