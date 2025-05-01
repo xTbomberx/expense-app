@@ -126,7 +126,7 @@ router.get('/getExpenses', protectRoute, async (req, res) => {
  // Get: Retrieve all incomes for the logged-in user
 router.get('/getIncomes', protectRoute, async(req,res) => {
 	try {
-		console.log('Request recieve at /getIncomes')
+		//console.log('Request recieve at /getIncomes')
 		const userId = req.user.id
 
 		// Find all incomes for the user
@@ -142,7 +142,7 @@ router.get('/getIncomes', protectRoute, async(req,res) => {
 // Get: Recent Weekly Expenses
 router.get('/getCurrentWeekExpenses', protectRoute, async(req,res) => {
 	try{
-		console.log('Request received at /getCurrentWeekExpenses')
+		//console.log('Request received at /getCurrentWeekExpenses')
 
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -166,7 +166,7 @@ router.get('/getCurrentWeekExpenses', protectRoute, async(req,res) => {
 // Get: Recent Weekly Incomes
 router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 	try {
-	    console.log('Request received at /getCurrentWeekIncomes');
+	    //console.log('Request received at /getCurrentWeekIncomes');
  
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -185,6 +185,40 @@ router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 	}
  });
 
+// Get: Weekly transactions(income and expenses)
+router.get('/getCurrentWeekTransactions', protectRoute, async(req,res) => {
+	try {
+		console.log('Req @ /getCurrentWeekTransactions')
+
+		// 1. Find EOW/SOW
+		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
+
+		// 2. Fetch Incomes and Expenses
+		const [incomes, expenses] = await Promise.all([
+			Income.find({
+				uid: req.user.id,
+				date: { $gte: startOfWeek, $lte: endOfWeek}
+			}),
+			Expense.find({
+				uid: req.user.id,
+				date: {$gte: startOfWeek, $lte: endOfWeek},
+				category: {$ne: 'bills'} // Excludes 'bills' categories
+			})
+		]);
+
+		// 3. Send combine data to Frontend
+		res.status(200).json({
+			success: true,
+			transactions: {
+				incomes,
+				expenses
+			}
+		})
+	} catch(error) {
+		console.error('Error fetching weekly transactions: ', error);
+		res.status(500).json({ succes: false, message: 'Failed to fetch weekly transactions'})
+	}
+})
 
 router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	try {
