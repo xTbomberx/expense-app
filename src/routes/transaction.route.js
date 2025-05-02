@@ -139,6 +139,36 @@ router.get('/getIncomes', protectRoute, async(req,res) => {
 	}
 })
 
+
+router.get('/getTransactions', protectRoute, async(req,res) => {
+
+	try {
+		console.log('Req @ all transactions')
+
+		// 1. Grab User
+		const userId = req.user.id
+
+		// 2. Grab all transactions (by most recent - descending order)
+		const [incomes,expenses] = await Promise.all([
+			Income.find({uid: userId}).sort({date: -1}),
+			Expense.find({uid: userId}).sort({date: -1})
+		])
+
+		// 3. Send back transactions
+		res.status(200).json({
+			success: true,
+			transactions: {
+				incomes,
+				expenses
+			}
+		})
+
+	} catch(error) {
+		console.error('All transactions error: ', error)
+		res.status(500).json({success: false, message: 'Failed to fetch all transactions'})
+	}
+})
+
 // Get: Recent Weekly Expenses
 router.get('/getCurrentWeekExpenses', protectRoute, async(req,res) => {
 	try{
@@ -219,7 +249,6 @@ router.get('/getCurrentWeekTransactions', protectRoute, async(req,res) => {
 		res.status(500).json({ succes: false, message: 'Failed to fetch weekly transactions'})
 	}
 })
-
 router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	try {
 		//console.log('Req received at /getCurrentMonthlyExpenses')
@@ -244,53 +273,40 @@ router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	}
 })
 
-// Get: Current Month Incomes
-router.get('/getCurrentMonthIncomes', protectRoute, async (req, res) => {
+router.get('getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 	try {
-	    //console.log('Request received at /getCurrentMonthIncomes');
- 
+		console.log('Req @ /getCurrentMonthTransactions')
+
 		// 1. Find EOM/SOM
 		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
 
-	    // 2. Fetch incomes for the current month
-	    const incomes = await Income.find({
-		   uid: req.user.id,
-		   date: { $gte: startOfMonth, $lte: endOfMonth },
-	    });
- 
-	    // 3. Send incomes to the frontend
-	    res.status(200).json({ success: true, incomes });
+		// 2. Fetch all transactions from this month
+		const [incomes, expenses] = await Promise.all([
+			Income.find({
+				uid: req.user.id,
+				date: {$gte: startOfMonth, $lte: endOfMonth}
+			}),,,,,,
+			Expense.find({
+				uid: req.user.id,
+				date: {$gte: startOfMonth, $lte: endOfMonth}
+			})
+		])
 
-	} catch (error) {
-	    console.error('Error fetching current month incomes:', error);
-	    res.status(500).json({ success: false, message: 'Failed to fetch current month incomes' });
+		// 3. Send back transactions
+		res.status(200).json({
+			success: true,
+			transactions: {
+				incomes,
+				expenses
+			}
+		})
+
+	} catch(error) {
+		console.error('Error fetching current month expenses:', error);
+		res.status(500).json({ success: false, message: 'Failed to fetch current month transactions' });
+	
 	}
- });
-
-// Get: Current Month Bills
-router.get('/getCurrentMonthBills', protectRoute, async (req, res) => {
-	try {
-	    //console.log('Request received at /getCurrentMonthBills');
- 
-         // Dynamically calculate the start and end of the month
-	    const { startOfMonth, endOfMonth } = getStartAndEndOfMonth()
- 
-	    // Fetch bills (expenses with category "bills") for the current month
-	    const bills = await Expense.find({
-		   uid: req.user.id,
-		   category: 'bills', // Filter by category "bills"
-		   date: { $gte: startOfMonth, $lte: endOfMonth },
-	    });
- 
-	    res.status(200).json({ success: true, bills });
-	} catch (error) {
-	    console.error('Error fetching current month bills:', error);
-	    res.status(500).json({ success: false, message: 'Failed to fetch current month bills' });
-	}
- });
-
-
-
+})
 
 // PUT: Update an expense
 router.put('/updateExpense/:id', protectRoute, async (req, res) => {
