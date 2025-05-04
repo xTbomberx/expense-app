@@ -215,6 +215,7 @@ router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 	}
  });
 
+
 // Get: Weekly transactions(income and expenses)
 router.get('/getCurrentWeekTransactions', protectRoute, async(req,res) => {
 	try {
@@ -249,7 +250,9 @@ router.get('/getCurrentWeekTransactions', protectRoute, async(req,res) => {
 		res.status(500).json({ succes: false, message: 'Failed to fetch weekly transactions'})
 	}
 })
-router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
+
+
+router.get('/getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	try {
 		//console.log('Req received at /getCurrentMonthlyExpenses')
 
@@ -273,7 +276,7 @@ router.get('getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	}
 })
 
-router.get('getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
+router.get('/getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 	try {
 		console.log('Req @ /getCurrentMonthTransactions')
 
