@@ -110,7 +110,7 @@ router.post('/login', async(req,res) => {
 			  email: user.email,
 			  profileImage: user.profileImage,
 			  createdAt: user.createdAt,
-			  savingsGoal: savingsGoal
+			  savingsGoal: user.savingsGoal
 		   }
 	    })
 	} catch(e){
