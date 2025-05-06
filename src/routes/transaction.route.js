@@ -168,8 +168,9 @@ router.get('/getTransactions', protectRoute, async(req,res) => {
 		res.status(500).json({success: false, message: 'Failed to fetch all transactions'})
 	}
 })
-
-// Get: Recent Weekly Expenses
+/////////////////////////////
+// WEEKLY GET request  
+/////////////////////////////
 router.get('/getCurrentWeekExpenses', protectRoute, async(req,res) => {
 	try{
 		//console.log('Request received at /getCurrentWeekExpenses')
@@ -251,6 +252,51 @@ router.get('/getCurrentWeekTransactions', protectRoute, async(req,res) => {
 	}
 })
 
+router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
+	try {
+		console.log('Req @ /getCurrentWeekTransactions')
+
+		// 1. Find EOW/SOW
+		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
+
+		// 2. Fetch Monthly Bills and Income
+		const [exepnses,incomes] = await Promise.all([
+			Expense.find({
+				uid: req.user.id,
+				date: {$gte: startOfWeek, $lte: endOfWeek},
+				category: {$ne: 'bills'} // Excludes 'bills' categories
+			}),
+			Income.find({
+				uid: req.user.id,
+				date: {$gte: startOfWeek, $lte: endOfWeek},
+			})
+		])
+
+		// 3. Calc Total Bills and Income
+		const weeklyExpenses = exepnses.reduce((sum,bill) => sum + bill.amount, 0);
+		const weeklyIncome = incomes.reduce((sum,income) => sum + income.amount, 0)
+		
+		// 4. Calc Weekly Budget
+		const weeklyBudget = weeklyExpenses - weeklyIncome // will return NEGATIVE value (until income is greater)
+		const weeklyBudgetPercentage = weeklyIncome > 0 ? (weeklyExpenses / totalIncome) : 0
+
+
+		// 5. Send Response
+		res.status(200).json({
+			success: true, 
+			currentWeeklyBudget: weeklyBudget,
+			weeklyBudgetPercentage: weeklyBudgetPercentage.toFixed(2)
+		})
+
+	} catch(error) {
+		console.error('Error fetching weekly budget: ', error);
+		res.status(500).json({ succes: false, message: 'Failed to fetch weekly budget'})
+	}
+})
+
+/////////////////////////////
+// MONTHLY GET request  
+/////////////////////////////
 
 router.get('/getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	try {
@@ -275,6 +321,51 @@ router.get('/getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	
 	}
 })
+
+// router.get('/getCurrentMonthlyIncome', protectRoute, async(req,res))
+
+router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
+	try {
+		console.log('Req received @ monthly Budget')
+
+		// 1. Find EOM/SOM
+		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
+
+		// 2. Fetch Monthly Bills and Income
+		const [bills,incomes] = await Promise.all([
+			Expense.find({
+				uid: req.user.id,
+				date: { $gte: startOfMonth, $lte: endOfMonth},
+				category: 'bills',
+			}),
+			Income.find({
+				uid: req.user.id,
+				date: { $gte: startOfMonth, $lte: endOfMonth}
+			})
+		])
+
+		// 3. Calc Total Bills and Income
+		const monthlyBills = bills.reduce((sum,bill) => sum + bill.amount, 0);
+		const monthlyIncome = incomes.reduce((sum,income) => sum + income.amount, 0)
+		
+		// 4. Calc Monthly Budget
+		const monthlyBudget = monthlyBills - monthlyIncome // will return NEGATIVE value (until income is greater)
+		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / totalIncome) : 0
+
+
+		// 5. Send Response
+		res.status(200).json({
+			success: true, 
+			currentMonthlyBudget: monthlyBudget,
+			monthlyBudgetPercentage: monthlyBudgetPercentage.toFixed(2)
+		})
+
+	} catch(error) {
+		console.error('Error fetching current month budget:', error);
+		res.status(500).json({ success: false, message: 'Failed to fetch current month budget' });
+	}
+})
+
 
 router.get('/getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 	try {
