@@ -258,13 +258,19 @@ router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
 
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
+		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
 
 		// 2. Fetch Monthly Bills and Income
-		const [exepnses,incomes] = await Promise.all([
+		const [weeklyExpensesData, monthlyBillsData, weeklyIncomeData ] = await Promise.all([
 			Expense.find({
 				uid: req.user.id,
 				date: {$gte: startOfWeek, $lte: endOfWeek},
 				category: {$ne: 'bills'} // Excludes 'bills' categories
+			}),
+			Expense.find({
+				uid: req.user.id,
+				date: {$gte: startOfMonth, $lte: endOfMonth},
+				category: 'bills'
 			}),
 			Income.find({
 				uid: req.user.id,
@@ -273,21 +279,28 @@ router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
 		])
 
 		// 3. Calc Total Bills and Income
-		const weeklyExpenses = exepnses.reduce((sum,bill) => sum + bill.amount, 0);
-		const weeklyIncome = incomes.reduce((sum,income) => sum + income.amount, 0)
-		
+		const weeklyExpenses = weeklyExpensesData.reduce((sum, expense) => sum + expense.amount, 0);
+		const monthlyBills = monthlyBillsData.reduce((sum, bill) => sum + bill.amount, 0);
+		const weeklyIncome = weeklyIncomeData.reduce((sum, income) => sum + income.amount, 0);
+  
+
 		// 4. Calc Weekly Budget
 		// Negative if Income is Less then Expenses
-		const weeklyBudget = weeklyIncome  - weeklyExpenses 
-		const weeklyBudgetPercentage = weeklyIncome > 0 ? (weeklyExpenses / weeklyIncome) : 0
+		const weeklyTarget = weeklyExpenses + (monthlyBills / 4);
 
-		console.log(weeklyBudget)
-		console.log(weeklyBudgetPercentage)
+		const weeklyBudget = weeklyIncome  - weeklyTarget
+		const weeklyBudgetPercentage = weeklyTarget > 0 ? (weeklyIncome / weeklyTarget) * 100 : 0;
+
+		console.log('Weekly Expenses:', weeklyExpenses);
+		console.log('Monthly Bills (Weekly Portion):', monthlyBills / 4);
+		console.log('Weekly Target:', weeklyTarget);
+		console.log('Weekly Income:', weeklyIncome);
+		console.log('Weekly Budget Percentage:', weeklyBudgetPercentage);
 
 		// 5. Send Response
 		res.status(200).json({
 			success: true, 
-			currentWeeklyBudget: weeklyBudget,
+			currentWeeklyBudget: weeklyBudget.toFixed(2),
 			weeklyBudgetPercentage: weeklyBudgetPercentage.toFixed(2)
 		})
 
@@ -388,15 +401,15 @@ router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
 		// 4. Calc Monthly Budget
 		// will return NEGATIVE value (until income is greater)
 		const monthlyBudget = monthlyIncome - monthlyBills // will return NEGATIVE value (until income is greater)
-		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / monthlyIncome) : 0
+		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyIncome / monthlyBills) * 100 : 0;
 
 		console.log(monthlyBudget)
 		console.log(monthlyBudgetPercentage)
-		
+
 		// 5. Send Response
 		res.status(200).json({
 			success: true, 
-			currentMonthlyBudget: monthlyBudget,
+			currentMonthlyBudget: monthlyBudget.toFixed(2),
 			monthlyBudgetPercentage: monthlyBudgetPercentage.toFixed(2)
 		})
 
