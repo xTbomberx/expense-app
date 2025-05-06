@@ -3,6 +3,7 @@ import express from 'express'
 import Expense from "../models/Expense.js";
 import Income from "../models/Income.js";
 import Wallet from "../models/Wallet.js";
+import User from "../models/User.js";
 
 
 
@@ -145,18 +146,39 @@ router.get('/getSavings', protectRoute, async(req,res) => {
 		// 1. Get User
 		const userId = req.user.id
 
-		// 2. Find all savings for the User
-		const savings = await Expense.find({
-			uid: userId,
-			category: 'savings'
-		})
+		// 2. Find all savings & goal for the User
+		const [user, savings] = await Promise.all([
+			User.findById(userId),
+			Expense.find({
+				uid: userId,
+				category: 'savings'
+			})
+		])
 
-		// 3. Send Response
-		res.status(200).json({success: true, savings})
-	} catch(error) {
-		console.error('Error fetch savings: ', error)
-		res.status(500).json({success: false, message: "Failed to fetch savings"})
-	}
+		// 3. Calculate Total Savings
+		const totalSavings = savings.reduce((sum,saving) => sum + saving.amount, 0)
+
+		// 4. Calculate Savings Percentage
+		const savingsGoal = user.savingsGoal || 0; // Default to Zero if None
+		const savingsPercentage = savingsGoal > 0 ? (totalSavings / savingsGoal) * 100 : 0;
+
+		console.log('total savings: ', totalSavings)
+		console.log('Savings Goal: ', savingsGoal)
+		console.log('Savings Percentage: ', savingsPercentage)
+
+		
+		// 5. Send Response
+		res.status(200).json({
+			success: true,
+			totalSavings: totalSavings.toFixed(2),
+			savingsGoal: savingsGoal.toFixed(2),
+			savingsPercentage: savingsPercentage.toFixed(2),
+		});
+
+	} catch (error) {
+        console.error('Error fetching savings:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch savings' });
+    }
 })
 
 router.get('/getTransactions', protectRoute, async(req,res) => {
@@ -187,6 +209,7 @@ router.get('/getTransactions', protectRoute, async(req,res) => {
 		res.status(500).json({success: false, message: 'Failed to fetch all transactions'})
 	}
 })
+
 /////////////////////////////
 // WEEKLY GET request  
 /////////////////////////////

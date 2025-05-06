@@ -101,7 +101,7 @@ router.post('/login', async(req,res) => {
  
 	    const token = generateToken(user._id);
 
-	    console.log(token)
+	    // console.log(token)
 	    res.status(201).json({
 		   token,
 		   user: {
@@ -110,6 +110,7 @@ router.post('/login', async(req,res) => {
 			  email: user.email,
 			  profileImage: user.profileImage,
 			  createdAt: user.createdAt,
+			  savingsGoal: savingsGoal
 		   }
 	    })
 	} catch(e){
@@ -124,7 +125,7 @@ router.put('/update' , protectRoute, async(req,res) => {
 
 	try {
 		// FROM MOBILE FRONTEND
-		const { username, profileImage } = req.body;
+		const { username, profileImage, savingsGoal } = req.body;
 
 		// Authenticated User
 		const user = req.user;
@@ -147,6 +148,14 @@ router.put('/update' , protectRoute, async(req,res) => {
 			    user.profileImage = imageUrl;
 			}
 		}
+
+		// 3. Update Savings Goal(if provided)
+		if(savingsGoal) {
+			if (savingsGoal < 0){
+				return res.status(400).json({message: 'Savings Goal must be a positive number'})
+			}
+			user.savingsGoal = savingsGoal
+		}
 		
 		// Save Updated  User
 		await user.save()
@@ -159,6 +168,7 @@ router.put('/update' , protectRoute, async(req,res) => {
 				email: user.email,
 				profileImage: user.profileImage,
 				createdAt: user.createdAt,
+				savingsGoal: savingsGoal
 			 },
 		})
 	} catch(e) {
@@ -167,5 +177,6 @@ router.put('/update' , protectRoute, async(req,res) => {
 	}
 
 })
+
 
 export default router

@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
     profileImage: {
         type: String,
         default: ''
+    },
+    savingsGoal: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 
