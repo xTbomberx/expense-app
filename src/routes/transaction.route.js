@@ -278,7 +278,7 @@ router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
 		
 		// 4. Calc Weekly Budget
 		const weeklyBudget = weeklyExpenses - weeklyIncome // will return NEGATIVE value (until income is greater)
-		const weeklyBudgetPercentage = weeklyIncome > 0 ? (weeklyExpenses / totalIncome) : 0
+		const weeklyBudgetPercentage = weeklyIncome > 0 ? (weeklyExpenses / weeklyIncome) : 0
 
 
 		// 5. Send Response
@@ -350,7 +350,7 @@ router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
 		
 		// 4. Calc Monthly Budget
 		const monthlyBudget = monthlyBills - monthlyIncome // will return NEGATIVE value (until income is greater)
-		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / totalIncome) : 0
+		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / weeklyIncome) : 0
 
 
 		// 5. Send Response
