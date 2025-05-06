@@ -277,9 +277,12 @@ router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
 		const weeklyIncome = incomes.reduce((sum,income) => sum + income.amount, 0)
 		
 		// 4. Calc Weekly Budget
-		const weeklyBudget = weeklyExpenses - weeklyIncome // will return NEGATIVE value (until income is greater)
+		// Negative if Income is Less then Expenses
+		const weeklyBudget = weeklyIncome  - weeklyExpenses 
 		const weeklyBudgetPercentage = weeklyIncome > 0 ? (weeklyExpenses / weeklyIncome) : 0
 
+		console.log(weeklyBudget)
+		console.log(weeklyBudgetPercentage)
 
 		// 5. Send Response
 		res.status(200).json({
@@ -322,51 +325,6 @@ router.get('/getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 	}
 })
 
-// router.get('/getCurrentMonthlyIncome', protectRoute, async(req,res))
-
-router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
-	try {
-		console.log('Req received @ monthly Budget')
-
-		// 1. Find EOM/SOM
-		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
-
-		// 2. Fetch Monthly Bills and Income
-		const [bills,incomes] = await Promise.all([
-			Expense.find({
-				uid: req.user.id,
-				date: { $gte: startOfMonth, $lte: endOfMonth},
-				category: 'bills',
-			}),
-			Income.find({
-				uid: req.user.id,
-				date: { $gte: startOfMonth, $lte: endOfMonth}
-			})
-		])
-
-		// 3. Calc Total Bills and Income
-		const monthlyBills = bills.reduce((sum,bill) => sum + bill.amount, 0);
-		const monthlyIncome = incomes.reduce((sum,income) => sum + income.amount, 0)
-		
-		// 4. Calc Monthly Budget
-		const monthlyBudget = monthlyBills - monthlyIncome // will return NEGATIVE value (until income is greater)
-		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / monthlyIncome) : 0
-
-
-		// 5. Send Response
-		res.status(200).json({
-			success: true, 
-			currentMonthlyBudget: monthlyBudget,
-			monthlyBudgetPercentage: monthlyBudgetPercentage.toFixed(2)
-		})
-
-	} catch(error) {
-		console.error('Error fetching current month budget:', error);
-		res.status(500).json({ success: false, message: 'Failed to fetch current month budget' });
-	}
-})
-
-
 router.get('/getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 	try {
 		console.log('Req @ /getCurrentMonthTransactions')
@@ -402,7 +360,56 @@ router.get('/getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 	}
 })
 
+
+router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
+	try {
+		console.log('Req received @ monthly Budget')
+
+		// 1. Find EOM/SOM
+		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
+
+		// 2. Fetch Monthly Bills and Income
+		const [bills,incomes] = await Promise.all([
+			Expense.find({
+				uid: req.user.id,
+				date: { $gte: startOfMonth, $lte: endOfMonth},
+				category: 'bills',
+			}),
+			Income.find({
+				uid: req.user.id,
+				date: { $gte: startOfMonth, $lte: endOfMonth}
+			})
+		])
+
+		// 3. Calc Total Bills and Income
+		const monthlyBills = bills.reduce((sum,bill) => sum + bill.amount, 0);
+		const monthlyIncome = incomes.reduce((sum,income) => sum + income.amount, 0)
+		
+		// 4. Calc Monthly Budget
+		// will return NEGATIVE value (until income is greater)
+		const monthlyBudget = monthlyIncome - monthlyBills // will return NEGATIVE value (until income is greater)
+		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / monthlyIncome) : 0
+
+		console.log(monthlyBudget)
+		console.log(monthlyBudgetPercentage)
+		
+		// 5. Send Response
+		res.status(200).json({
+			success: true, 
+			currentMonthlyBudget: monthlyBudget,
+			monthlyBudgetPercentage: monthlyBudgetPercentage.toFixed(2)
+		})
+
+	} catch(error) {
+		console.error('Error fetching current month budget:', error);
+		res.status(500).json({ success: false, message: 'Failed to fetch current month budget' });
+	}
+})
+
+
+////////////////////
 // PUT: Update an expense
+///////////////////
 router.put('/updateExpense/:id', protectRoute, async (req, res) => {
 	try {
 	    const { id } = req.params;
@@ -436,8 +443,9 @@ router.put('/updateExpense/:id', protectRoute, async (req, res) => {
 	}
  });
 
-
- // DELETE: Delete an expense
+//////////////////////////
+// DELETE: Delete an expense
+//////////////////////////
 router.delete('/deleteTransaction/:id', protectRoute, async (req, res) => {
 	try {
 	     const { id } = req.params;
