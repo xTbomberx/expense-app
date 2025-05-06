@@ -8,12 +8,12 @@ const router = express.Router();
 // Create a new wallet
 router.post('/postWallet', protectRoute, async (req, res) => {
     try {
-        console.log('Request received at /postWallet'); // Log when the route is hit
+        // console.log('Request received at /postWallet'); // Log when the route is hit
         const { name, image } = req.body;
 
 
         const userId = req.user.id; // Extract the logged-in user's ID from the token
-        console.log('User ID:', userId); // Log the user ID
+        // console.log('User ID:', userId); // Log the user ID
 
         // 2. Update 
         let imageUrl = null
@@ -24,14 +24,14 @@ router.post('/postWallet', protectRoute, async (req, res) => {
 
         }
 
-        console.log('Creating wallet in the database...');
+        // console.log('Creating wallet in the database...');
         const wallet = await Wallet.create({
             name,
             image: imageUrl,
             uid: userId,
         });
 
-        console.log('Wallet created:', wallet); // Log the created wallet
+        // console.log('Wallet created:', wallet); // Log the created wallet
 
         res.status(201).json({ success: true, wallet });
     } catch (error) {
@@ -43,12 +43,12 @@ router.post('/postWallet', protectRoute, async (req, res) => {
 
 // Get all wallets for the logged-in user
 router.get('/getWallets', protectRoute, async (req, res) => {
-    console.log('Request received at /getWallets'); 
+    // console.log('Request received at /getWallets'); 
     try {
         const userId = req.user.id; // Extract the logged-in user's ID from the token
         const wallets = await Wallet.find({ uid: userId });
 
-        console.log(wallets) //debug statement
+        // console.log(wallets) //debug statement
         
         res.status(200).json({ success: true, wallets });
     } catch (error) {
@@ -64,7 +64,7 @@ router.put('/updateWallet/:id' , protectRoute, async(req, res) => {
         const { name, image } = req.body
         const userId = req.user.id
 
-        console.log(req.body)
+        // console.log(req.body)
         // 1. Check if Wallet exists and belongs to USER
         const wallet = await Wallet.findOne({ _id: id, uid: userId});
         if(!wallet) {
