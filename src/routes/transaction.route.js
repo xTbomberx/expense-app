@@ -139,11 +139,30 @@ router.get('/getIncomes', protectRoute, async(req,res) => {
 	}
 })
 
+router.get('/getSavings', protectRoute, async(req,res) => {
+	try {
+
+		// 1. Get User
+		const userId = req.user.id
+
+		// 2. Find all savings for the User
+		const savings = await Expense.find({
+			uid: userId,
+			category: 'savings'
+		})
+
+		// 3. Send Response
+		res.status(200).json({success: true, savings})
+	} catch(error) {
+		console.error('Error fetch savings: ', error)
+		res.status(500).json({success: false, message: "Failed to fetch savings"})
+	}
+})
 
 router.get('/getTransactions', protectRoute, async(req,res) => {
 
 	try {
-		console.log('Req @ all transactions')
+		// console.log('Req @ all transactions')
 
 		// 1. Grab User
 		const userId = req.user.id
@@ -220,7 +239,7 @@ router.get('/getCurrentWeekIncomes', protectRoute, async (req, res) => {
 // Get: Weekly transactions(income and expenses)
 router.get('/getCurrentWeekTransactions', protectRoute, async(req,res) => {
 	try {
-		console.log('Req @ /getCurrentWeekTransactions')
+		//console.log('Req @ /getCurrentWeekTransactions')
 
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -254,7 +273,7 @@ router.get('/getCurrentWeekTransactions', protectRoute, async(req,res) => {
 
 router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
 	try {
-		console.log('Req @ /getCurrentWeekTransactions')
+		// console.log('Req @ /getCurrentWeekTransactions')
 
 		// 1. Find EOW/SOW
 		const {startOfWeek, endOfWeek} = getStartAndEndOfWeek();
@@ -291,11 +310,11 @@ router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
 		const weeklyBudget = weeklyIncome  - weeklyTarget
 		const weeklyBudgetPercentage = weeklyTarget > 0 ? (weeklyIncome / weeklyTarget) * 100 : 0;
 
-		console.log('Weekly Expenses:', weeklyExpenses);
-		console.log('Monthly Bills (Weekly Portion):', monthlyBills / 4);
-		console.log('Weekly Target:', weeklyTarget);
-		console.log('Weekly Income:', weeklyIncome);
-		console.log('Weekly Budget Percentage:', weeklyBudgetPercentage);
+		// console.log('Weekly Expenses:', weeklyExpenses);
+		// console.log('Monthly Bills (Weekly Portion):', monthlyBills / 4);
+		// console.log('Weekly Target:', weeklyTarget);
+		// console.log('Weekly Income:', weeklyIncome);
+		// console.log('Weekly Budget Percentage:', weeklyBudgetPercentage);
 
 		// 5. Send Response
 		res.status(200).json({
@@ -340,7 +359,7 @@ router.get('/getCurrentMonthlyExpenses', protectRoute, async(req,res) => {
 
 router.get('/getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 	try {
-		console.log('Req @ /getCurrentMonthTransactions')
+		// console.log('Req @ /getCurrentMonthTransactions')
 
 		// 1. Find EOM/SOM
 		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
@@ -376,7 +395,7 @@ router.get('/getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 
 router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
 	try {
-		console.log('Req received @ monthly Budget')
+		//  console.log('Req received @ monthly Budget')
 
 		// 1. Find EOM/SOM
 		const {startOfMonth , endOfMonth} = getStartAndEndOfMonth()
@@ -403,9 +422,6 @@ router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
 		const monthlyBudget = monthlyIncome - monthlyBills // will return NEGATIVE value (until income is greater)
 		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyIncome / monthlyBills) * 100 : 0;
 
-		console.log(monthlyBudget)
-		console.log(monthlyBudgetPercentage)
-
 		// 5. Send Response
 		res.status(200).json({
 			success: true, 
@@ -428,10 +444,11 @@ router.put('/updateExpense/:id', protectRoute, async (req, res) => {
 	    const { id } = req.params;
 	    const { amount, category, date, description } = req.body;
 	    const userId = req.user.id;
+
          // Debugging logs
-	    console.log('Update Expense Request ID:', id);
-	    console.log('Update Expense User ID:', userId);
-	    console.log('Update Expense Body:', req.body);
+	//     console.log('Update Expense Request ID:', id);
+	//     console.log('Update Expense User ID:', userId);
+	//     console.log('Update Expense Body:', req.body);
 	    
 	    // Find the expense and ensure it belongs to the user
 	    const expense = await Expense.findOne({ _id: id, uid: userId });
