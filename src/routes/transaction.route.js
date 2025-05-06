@@ -350,7 +350,7 @@ router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
 		
 		// 4. Calc Monthly Budget
 		const monthlyBudget = monthlyBills - monthlyIncome // will return NEGATIVE value (until income is greater)
-		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / weeklyIncome) : 0
+		const monthlyBudgetPercentage = monthlyIncome > 0 ? (monthlyBills / monthlyIncome) : 0
 
 
 		// 5. Send Response
