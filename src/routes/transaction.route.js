@@ -343,7 +343,8 @@ router.get('/getCurrentWeeklyBudget', protectRoute, async(req,res) => {
 		res.status(200).json({
 			success: true, 
 			currentWeeklyBudget: weeklyBudget.toFixed(2),
-			weeklyBudgetPercentage: weeklyBudgetPercentage.toFixed(2)
+			weeklyBudgetPercentage: weeklyBudgetPercentage.toFixed(2),
+			weeklyTarget: weeklyTarget
 		})
 
 	} catch(error) {
@@ -392,7 +393,7 @@ router.get('/getCurrentMonthlyTransactions', protectRoute, async(req,res) => {
 			Income.find({
 				uid: req.user.id,
 				date: {$gte: startOfMonth, $lte: endOfMonth}
-			}),,,,,,
+			}),
 			Expense.find({
 				uid: req.user.id,
 				date: {$gte: startOfMonth, $lte: endOfMonth}
@@ -449,7 +450,9 @@ router.get('/getCurrentMonthlyBudget', protectRoute, async(req,res) => {
 		res.status(200).json({
 			success: true, 
 			currentMonthlyBudget: monthlyBudget.toFixed(2),
-			monthlyBudgetPercentage: monthlyBudgetPercentage.toFixed(2)
+			monthlyBudgetPercentage: monthlyBudgetPercentage.toFixed(2),
+			monthlyBills: monthlyBills,
+
 		})
 
 	} catch(error) {
