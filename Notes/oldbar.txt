@@ -1,0 +1,36 @@
+	return (
+		<SafeAreaView style={styles.safeArea}>
+			<Tabs
+				screenOptions={{
+					headerShown: false,
+					tabBarActiveTintColor: COLORS.accent.blue, // Active tab color
+					tabBarInactiveTintColor: COLORS.dark.tabInactive, // Inactive tab color
+					headerShadowVisible: false,
+					tabBarStyle: {
+						// paddingTop: 10,
+						height: 15 + insets.bottom, // Ensure the tab bar includes the home indicator
+						// backgroundColor: COLORS.light.background, // Match the background color
+						borderTopWidth: 1, // Remove the default border
+						borderColor: COLORS.accent.blue,
+
+
+						backgroundColor: COLORS.dark.input,
+						marginHorizontal: 30,
+						// paddingTop: 5,
+						position: 'absolute',
+						borderWidth: 3,
+						// height: 60,
+						bottom: 20,
+						left: 20,
+						right: 20,
+						borderRadius: 30,
+						shadowColor: '#000',
+						shadowOpacity: 0.1,
+						shadowRadius: 10,
+						elevation: 5,
+						alignContent: 'center',
+						justifyContent: 'center'
+
+					},
+				}}
+			>

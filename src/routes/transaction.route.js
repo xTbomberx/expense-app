@@ -47,8 +47,8 @@ const getStartAndEndOfMonth = (date = new Date()) => {
 router.post('/postTransaction', protectRoute, async(req, res) => {
 	try {
 		const { amount, category, date, description, walletId, type } = req.body;
-		console.log('Request received at /postExpense')
-		console.log(req.body)
+		// console.log('Request received at /postExpense')
+		
 		// 1. Validation - CHECK for CATEGORY ONLY WHEN TYPE = exepnse
 		// if(!amount || !category || !walletId) {
 		if (!amount || !walletId || (type === 'expense' && !category)) {
@@ -529,8 +529,28 @@ router.delete('/deleteTransaction/:id', protectRoute, async (req, res) => {
 		if(!transaction) {
 			return res.status(404).json({success: false, message: 'Transaction does not exist'})
 		}
- 
-	    res.status(200).json({ success: true, message: 'Transaction deleted successfully' });
+
+		// 4. Update the Wallet
+		const wallet = await Wallet.findById(transaction.walletId)
+
+		if(!wallet) {
+			   return res.status(404).json({ success: false, message: 'Wallet not found' });
+		}
+			 
+		if(type === 'expense') {
+			wallet.totalExpense -= transaction.amount;
+			wallet.balance += transaction.amount; // Refund the expense amount
+		} else if (type=== 'income') {
+			wallet.totalIncome -= transaction.amount;
+			wallet.balance -= transaction.amount // Deduct the income amount
+		}
+
+		await wallet.save()
+
+		// 5. Send back response
+ 		// res.status(200).json({ success: true, message: 'Transaction deleted successfully' });
+		res.status(200).json({ success: true, message: 'Transaction deleted successfully', wallet });
+	
 	} catch (error) {
 	    console.error('Error deleting expense:', error);
 	    res.status(500).json({ success: false, message: 'Failed to delete expense' });
@@ -538,3 +558,58 @@ router.delete('/deleteTransaction/:id', protectRoute, async (req, res) => {
  });
 
 export default router
+
+
+// router.delete('/deleteTransaction/:id', protectRoute, async (req, res) => {
+// 	try {
+// 	    const { id } = req.params;
+// 	    const userId = req.user.id;
+// 	    const { type } = req.query; // Get type from payload
+ 
+// 	    // 1. Error check for TYPE
+// 	    if (!type) {
+// 		   return res.status(400).json({ success: false, message: 'Transaction type is required' });
+// 	    }
+ 
+// 	    let transaction;
+ 
+// 	    // 2. Check type and delete the appropriate collection
+// 	    if (type === 'expense') {
+// 		   // Find and delete the expense
+// 		   transaction = await Expense.findOneAndDelete({ _id: id, uid: userId });
+// 	    } else if (type === 'income') {
+// 		   // Find and delete the income
+// 		   transaction = await Income.findOneAndDelete({ _id: id, uid: userId });
+// 	    } else {
+// 		   return res.status(400).json({ success: false, message: 'Invalid transaction type' });
+// 	    }
+ 
+// 	    // 3. If the transaction does not exist
+// 	    if (!transaction) {
+// 		   return res.status(404).json({ success: false, message: 'Transaction does not exist' });
+// 	    }
+ 
+// 	    // 4. Update the wallet's balance and totals
+// 	    const wallet = await Wallet.findById(transaction.walletId);
+ 
+// 	    if (!wallet) {
+// 		   return res.status(404).json({ success: false, message: 'Wallet not found' });
+// 	    }
+ 
+// 	    if (type === 'expense') {
+// 		   wallet.totalExpense -= transaction.amount;
+// 		   wallet.balance += transaction.amount; // Refund the expense amount to the balance
+// 	    } else if (type === 'income') {
+// 		   wallet.totalIncome -= transaction.amount;
+// 		   wallet.balance -= transaction.amount; // Deduct the income amount from the balance
+// 	    }
+ 
+// 	    await wallet.save();
+ 
+// 	    // 5. Send success response
+// 	    res.status(200).json({ success: true, message: 'Transaction deleted successfully', wallet });
+// 	} catch (error) {
+// 	    console.error('Error deleting transaction:', error);
+// 	    res.status(500).json({ success: false, message: 'Failed to delete transaction' });
+// 	}
+//  });
